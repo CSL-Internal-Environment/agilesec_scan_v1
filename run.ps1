@@ -5,15 +5,25 @@ $bundledPython = Join-Path $env:USERPROFILE ".cache\codex-runtimes\codex-primary
 
 Set-Location $repoRoot
 
-if (Get-Command python -ErrorAction SilentlyContinue) {
-    & python -m app.app
+function Invoke-IfWorkingPython {
+    param([string]$Command, [string[]]$Arguments = @())
+
+    $resolved = Get-Command $Command -ErrorAction SilentlyContinue
+    if (-not $resolved) {
+        return $false
+    }
+
+    & $Command @Arguments --version *> $null
+    if ($LASTEXITCODE -ne 0) {
+        return $false
+    }
+
+    & $Command @Arguments -m app.app
     exit $LASTEXITCODE
 }
 
-if (Get-Command py -ErrorAction SilentlyContinue) {
-    & py -3 -m app.app
-    exit $LASTEXITCODE
-}
+Invoke-IfWorkingPython "python"
+Invoke-IfWorkingPython "py" @("-3")
 
 if (Test-Path $bundledPython) {
     & $bundledPython -m app.app

@@ -15,7 +15,7 @@ This app deliberately includes those signals so a demo scan can show a before st
 | Area | V1 insecure implementation | Expected V2 direction |
 | --- | --- | --- |
 | Private key material | Demo RSA private key committed under `certs/` | Remove key from repo; use managed secrets/KMS |
-| Certificate policy | 1024-bit SHA-1 self-signed demo certificate | Use CA-issued certs, modern key sizes, SHA-256+ |
+| Certificate policy | Expired 1024-bit self-signed demo certificate plus SHA-1 policy references | Use CA-issued certs, modern key sizes, SHA-256+ |
 | Password storage | Unsalted SHA-1 password hashes | PBKDF2, bcrypt, scrypt, or Argon2 with salt |
 | Token signing | Hardcoded HMAC secret and SHA-1 signatures | Environment-backed secret and SHA-256+ |
 | Session cookies | No `Secure`, `HttpOnly`, or `SameSite` flags | Hardened cookie attributes |
@@ -44,7 +44,7 @@ Useful demo URLs:
 ```text
 http://127.0.0.1:8080/customers?q=Acme
 http://127.0.0.1:8080/notes?message=<script>alert(1)</script>
-http://127.0.0.1:8080/download?file=../config/secrets.env
+http://127.0.0.1:8080/download?file=../../config/secrets.env
 http://127.0.0.1:8080/api/token
 ```
 

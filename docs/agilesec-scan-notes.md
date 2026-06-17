@@ -41,9 +41,8 @@ scan_config:
 ## V1 Findings To Look For
 
 - Committed RSA private key in `certs/demo_rsa_1024_private_key.pem`
-- Weak self-signed SHA-1 certificate in `certs/demo_sha1_self_signed.crt`
+- Expired 1024-bit self-signed certificate in `certs/demo_sha1_self_signed.crt`
 - TLS 1.0/1.1 and legacy cipher configuration in `config/tls-policy.conf`
 - JWT-like token and hardcoded HMAC/API secrets in `app/crypto_legacy.py` and `config/secrets.env`
 - SHA-1 and MD5 usage in `app/crypto_legacy.py`
 - Insecure cookie flags, SQL injection, XSS, and path traversal in `app/app.py`
-
