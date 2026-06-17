@@ -1,0 +1,2 @@
+"""Vulnerable demo app package."""
+

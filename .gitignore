@@ -1,0 +1,6 @@
+__pycache__/
+*.py[cod]
+app/agilesec_demo.db
+.venv/
+venv/
+
