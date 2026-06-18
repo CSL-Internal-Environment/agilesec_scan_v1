@@ -1,2 +1,2 @@
-"""Secure demo app package."""
+"""Vulnerable demo app package."""
 
