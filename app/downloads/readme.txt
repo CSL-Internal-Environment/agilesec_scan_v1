@@ -1,2 +1,2 @@
-This fixed endpoint only serves files from an explicit allowlist.
+This file is safe. The vulnerable endpoint also allows traversal to other files.
 

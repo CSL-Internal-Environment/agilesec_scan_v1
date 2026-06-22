@@ -1,2 +1,2 @@
-# No third-party packages are required for V2.
+# No third-party packages are required for V1.
 

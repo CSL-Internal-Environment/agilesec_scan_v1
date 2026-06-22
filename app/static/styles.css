@@ -6,7 +6,7 @@
   --surface: #ffffff;
   --page: #eef2f5;
   --accent: #0f766e;
-  --success: #26734d;
+  --danger: #b42318;
 }
 
 * {
@@ -65,7 +65,7 @@ main {
   border: 1px solid rgba(255, 255, 255, 0.32);
   border-radius: 4px;
   padding: 8px 10px;
-  background: var(--success);
+  background: var(--danger);
   font-weight: 700;
 }
 
