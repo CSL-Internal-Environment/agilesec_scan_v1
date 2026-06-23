@@ -1,68 +1,51 @@
-# AgileSec Vulnerable Demo App
+# AgileSec Secure Demo App
 
-This repository is **V1: intentionally insecure code** for a Keyfactor AgileSec Analytics demo. It is designed to be uploaded to GitHub and scanned with the AgileSec GitHub or Git sensor so the first scan has clear cryptographic and application-security findings.
+This directory is **V2: remediated code** for the Keyfactor AgileSec Analytics before-and-after demo. It keeps the same user-facing workflow as the vulnerable V1 app while removing the static cryptographic assets and insecure patterns that should produce policy findings.
 
-Do not deploy this app outside a local demo environment.
+## What Changed From V1
 
-The remediated before-and-after version is available in `v2-secure/`.
-
-## Why This Exists
-
-Keyfactor AgileSec documentation describes AgileSec as a security scanning and compliance platform for discovering and inventorying cryptography. The GitHub and Git sensor guides state that repository scans discover items such as X.509 certificates, private keys, JWT/JWE tokens, cryptographic libraries, and code artifacts embedded in source repositories.
-
-This app deliberately includes those signals so a demo scan can show a before state. A later V2 should keep the same app behavior while removing or replacing the vulnerable patterns.
-
-## Vulnerabilities Intentionally Included
-
-| Area | V1 insecure implementation | Expected V2 direction |
+| Area | V1 vulnerable state | V2 fixed state |
 | --- | --- | --- |
-| Private key material | Demo RSA private key committed under `certs/` | Remove key from repo; use managed secrets/KMS |
-| Certificate policy | Expired 1024-bit self-signed demo certificate plus SHA-1 policy references | Use CA-issued certs, modern key sizes, SHA-256+ |
-| Password storage | Unsalted SHA-1 password hashes | PBKDF2, bcrypt, scrypt, or Argon2 with salt |
-| Token signing | Hardcoded HMAC secret and SHA-1 signatures | Environment-backed secret and SHA-256+ |
-| Session cookies | No `Secure`, `HttpOnly`, or `SameSite` flags | Hardened cookie attributes |
-| TLS configuration | TLS 1.0 and legacy cipher strings in config | TLS 1.2/1.3 only and modern ciphers |
-| SQL access | String-concatenated SQL query | Parameterized queries |
-| XSS | Reflected user input is rendered unescaped | HTML escaping/templates |
-| File access | Path traversal through unvalidated file input | Allowlisted paths |
-| Secrets | API key and JWT-like token in source/config | Secret manager or environment variables |
+| Private key material | Private key committed in `certs/` | No private keys in the repository |
+| Certificate handling | Expired self-signed certificate in source | Certificates are managed outside source control |
+| Password storage | Fast unsalted digest | PBKDF2-HMAC-SHA256 with a per-user salt |
+| Token signing | Hardcoded static secret | Runtime-generated or environment-provided secret |
+| API/token endpoint | Returned static key and token | Returns only redacted runtime status |
+| Session cookie | Missing security flags | `HttpOnly`, `SameSite=Strict`, and `Secure` when TLS is enabled |
+| SQL access | String-concatenated query | Parameterized query |
+| Reflected content | Unescaped user input | HTML escaped output |
+| File access | Traversal through request parameter | Allowlisted downloads only |
+| TLS policy | Legacy protocol and ciphers | TLS 1.2+ policy guidance |
 
 ## Run Locally
 
-Requires Python 3.10+.
-
 ```powershell
-.\run.ps1
+.\v2-secure\run.ps1
 ```
 
 Then open:
 
 ```text
-http://127.0.0.1:8080
+http://127.0.0.1:8082
 ```
 
-Useful demo URLs:
+The server prints a one-time demo password at startup unless `AGILESEC_DEMO_PASSWORD` is set.
+
+## Demo URLs
 
 ```text
-http://127.0.0.1:8080/customers?q=Acme
-http://127.0.0.1:8080/notes?message=<script>alert(1)</script>
-http://127.0.0.1:8080/download?file=../../config/secrets.env
-http://127.0.0.1:8080/api/token
+http://127.0.0.1:8082/customers?q=Acme
+http://127.0.0.1:8082/notes?message=<script>alert(1)</script>
+http://127.0.0.1:8082/download?file=readme.txt
+http://127.0.0.1:8082/api/token
 ```
 
-## AgileSec Scan Notes
+The traversal URL that worked in V1 should fail in V2:
 
-For GitHub-hosted demos, use the AgileSec GitHub Sensor and include this repository path in `include_paths`. For local or generic Git demos, use the Git Sensor against the repository URL. The repo intentionally contains first-class crypto artifacts in `certs/`, weak algorithm references in `app/crypto_legacy.py`, and TLS/secrets configuration in `config/`.
+```text
+http://127.0.0.1:8082/download?file=../../config/secrets.env
+```
 
-## V2 Remediation Plan
+## AgileSec Demo Positioning
 
-V2 should keep the same user-facing pages and routes while:
-
-1. Removing committed keys, certificates, API keys, and tokens.
-2. Replacing SHA-1/MD5 usage with approved hashing/signing approaches.
-3. Moving secrets to environment variables or a managed secret store.
-4. Enforcing secure cookie flags.
-5. Parameterizing database access.
-6. Escaping output.
-7. Restricting file downloads to an allowlisted directory.
-8. Updating TLS policy to TLS 1.2/1.3 and modern cipher suites.
+Scan V1 first to show cryptographic assets and policy issues. Scan `v2-secure/` after remediation to show that committed keys, certificate fixtures, static tokens, weak crypto references, and legacy TLS config have been removed from the fixed application path.
